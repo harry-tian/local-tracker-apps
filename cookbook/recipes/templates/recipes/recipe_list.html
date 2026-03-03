@@ -1,0 +1,76 @@
+{% extends "recipes/base.html" %}
+{% block title %}Recipes - Recipe Cookbook{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-slate-800 mb-6">My Recipes</h1>
+
+<form method="get" class="mb-8 p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+    <div class="flex flex-wrap gap-8 items-end">
+        <div>
+            <label for="id_search" class="block text-sm font-medium text-slate-600 mb-1">Search by title</label>
+            <input type="text" name="search" id="id_search" value="{{ filter_form.search.value|default:'' }}"
+                   placeholder="Search recipes by title" class="border border-slate-300 rounded-lg px-4 py-2.5 w-72">
+        </div>
+        <div>
+            <label for="id_ingredient" class="block text-sm font-medium text-slate-600 mb-1">Filter by ingredient</label>
+            <input type="text" name="ingredient" id="id_ingredient" value="{{ filter_form.ingredient.value|default:'' }}"
+                   placeholder="e.g. flour" class="border border-slate-300 rounded-lg px-4 py-2.5 w-72">
+        </div>
+        <div>
+            <label for="id_tag" class="block text-sm font-medium text-slate-600 mb-1">Filter by tag</label>
+            <select name="tag" id="id_tag" class="border border-slate-300 rounded-lg px-4 py-2.5 w-64">
+                <option value="">All tags</option>
+                {% for tag in filter_form.fields.tag.queryset %}
+                <option value="{{ tag.pk }}" {% if filter_form.tag.value == tag.pk %}selected{% endif %}>{{ tag.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="px-4 py-2 bg-sky-700 text-white rounded-lg hover:bg-sky-600">Search</button>
+        <a href="{% url 'recipe_list' %}" class="px-4 py-2 text-slate-600 hover:text-slate-800 underline">Clear</a>
+    </div>
+</form>
+
+{% if recipes %}
+<div class="grid gap-4 sm:grid-cols-3">
+    {% for recipe in recipes %}
+    <a href="{% url 'recipe_detail' recipe.pk %}" class="block p-5 bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md hover:border-sky-200 transition">
+        <h2 class="text-lg font-semibold text-slate-800 mb-2">{{ recipe.title }}</h2>
+        {% if recipe.cooking_time or recipe.difficulty %}
+        <div class="flex flex-wrap gap-1 mb-2">
+            {% if recipe.cooking_time %}
+            <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded text-xs">{{ recipe.cooking_time }}</span>
+            {% endif %}
+            {% if recipe.difficulty %}
+            <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded text-xs">{{ recipe.difficulty }}</span>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if recipe.tags.exists %}
+        <div class="flex flex-wrap gap-1 mb-2">
+            {% for tag in recipe.tags.all %}
+            <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded text-xs">{{ tag.name }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if recipe.ingredients.exists %}
+        <p class="text-sm text-slate-500 line-clamp-2">{{ recipe.ingredients.all|join:", " }}</p>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-8 flex justify-center gap-2">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.ingredient %}&ingredient={{ request.GET.ingredient }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}" class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-100">Previous</a>
+    {% endif %}
+    <span class="px-4 py-2 text-slate-600">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.ingredient %}&ingredient={{ request.GET.ingredient }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}" class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-100">Next</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p class="text-slate-500">No recipes found. <a href="{% url 'recipe_create' %}" class="text-sky-700 hover:underline">Add your first recipe</a>.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "recipes/base.html" %}
+{% block title %}{% if recipe %}Edit{% else %}Add{% endif %} Recipe - Recipe Cookbook{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-slate-800 mb-6 text-center">{% if recipe %}Edit Recipe{% else %}Add Recipe{% endif %}</h1>
+
+<form method="post" class="space-y-6 max-w-2xl mx-auto">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="p-4 bg-red-50 text-red-700 rounded-lg">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div>
+        <label for="id_title" class="block text-sm font-medium text-slate-700 mb-1">Title</label>
+        <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}" required
+               class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+        {% if form.title.errors %}<p class="text-red-600 text-sm mt-1">{{ form.title.errors.0 }}</p>{% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+            <label for="id_cooking_time" class="block text-sm font-medium text-slate-700 mb-1">Cooking time</label>
+            <select name="cooking_time" id="id_cooking_time" class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                {% for value, label in form.fields.cooking_time.choices %}
+                <option value="{{ value }}" {% if form.cooking_time.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="id_difficulty" class="block text-sm font-medium text-slate-700 mb-1">Difficulty</label>
+            <select name="difficulty" id="id_difficulty" class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                {% for value, label in form.fields.difficulty.choices %}
+                <option value="{{ value }}" {% if form.difficulty.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+
+    <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Ingredients</label>
+        <div class="flex flex-wrap gap-3 mb-3">
+            {% for choice in form.ingredient_ids.field.queryset %}
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="ingredient_ids" value="{{ choice.pk }}"
+                       {% if choice in form.ingredient_ids.initial %}checked{% endif %}
+                       class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                <span>{{ choice.name }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        <input type="text" name="new_ingredients" id="id_new_ingredients" value="{{ form.new_ingredients.value|default:'' }}"
+               placeholder="comma-separated"
+               class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+    </div>
+
+    <div>
+        <label for="id_steps" class="block text-sm font-medium text-slate-700 mb-1">Steps</label>
+        <textarea name="steps" id="id_steps" rows="6"
+                  class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:border-sky-500">{{ form.steps.value|default:'' }}</textarea>
+    </div>
+
+    <div>
+        <label for="id_notes" class="block text-sm font-medium text-slate-700 mb-1">Notes</label>
+        <textarea name="notes" id="id_notes" rows="3"
+                  class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:border-sky-500">{{ form.notes.value|default:'' }}</textarea>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Tags</label>
+        <div class="flex flex-wrap gap-3 mb-2">
+            {% for choice in form.tag_ids.field.queryset %}
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="tag_ids" value="{{ choice.pk }}"
+                       {% if choice in form.tag_ids.initial %}checked{% endif %}
+                       class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                <span>{{ choice.name }}</span>
+            </label>
+            {% empty %}
+            <!-- <span class="text-slate-500 text-sm">No tags yet.</span> -->
+            {% endfor %}
+        </div>
+        <input type="text" name="new_tags" id="id_new_tags" value="{{ form.new_tags.value|default:'' }}"
+               placeholder="comma-separated"
+               class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+    </div>
+
+    <div class="flex gap-3">
+        <button type="submit" class="px-6 py-2 bg-sky-700 text-white rounded-lg hover:bg-sky-600 font-medium">Save</button>
+        <a href="{% url 'recipe_list' %}" class="px-6 py-2 text-slate-600 hover:text-slate-800">Cancel</a>
+    </div>
+</form>
+{% endblock %}

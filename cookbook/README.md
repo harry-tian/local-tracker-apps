@@ -2,8 +2,19 @@
 
 A local Django + SQLite webapp for storing and browsing recipes. Filter by ingredients and tags.
 
+Open [http://0.0.0.0:8000/](http://0.0.0.0:8000/) (or [http://localhost:8000/](http://localhost:8000/)).
+
 ## TODOs
+
 1. version control for receipes
+
+## Run in background
+
+```bash
+cd /Users/tianh/Desktop/local-tracker-apps/cookbook
+source venv/bin/activate
+nohup python manage.py runserver 0.0.0.0:8000 &
+```
 
 ## Setup
 
@@ -20,4 +31,3 @@ python manage.py migrate
 python manage.py runserver 0.0.0.0:8000
 ```
 
-Open http://0.0.0.0:8000/ (or http://localhost:8000/). Access from other devices on your network via your machine's LAN IP (e.g. http://192.168.1.x:8000/).
